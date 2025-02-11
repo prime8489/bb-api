@@ -1,11 +1,17 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+require("dotenv").config(); // ✅ .env फाइल को सपोर्ट करने के लिए
 
 const app = express();
 app.use(bodyParser.json());
 
-const BOT_TOKEN = "7196811056:AAFq0KEswGZdF-SeMYtU61aBLUsiq-7P1Nw"; // ✅ अपना बॉट टोकन डालें
+const BOT_TOKEN = process.env.BOT_TOKEN; // ✅ Render में Bot Token सेव करें
+
+// ✅ होम पेज API (Fix for "Cannot GET /")
+app.get("/", (req, res) => {
+    res.send("✅ Broadcast API is running successfully!");
+});
 
 // ✅ ब्रॉडकास्ट API
 app.post("/save-broadcast", async (req, res) => {
@@ -18,7 +24,6 @@ app.post("/save-broadcast", async (req, res) => {
     for (const userId of users) {
         try {
             if (image) {
-                // ✅ इमेज के साथ टेक्स्ट भेजें
                 await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                     chat_id: userId,
                     photo: image,
@@ -26,7 +31,6 @@ app.post("/save-broadcast", async (req, res) => {
                     parse_mode: "HTML"
                 });
             } else {
-                // ✅ सिर्फ टेक्स्ट मैसेज भेजें
                 await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     chat_id: userId,
                     text: message,
@@ -45,4 +49,4 @@ app.post("/save-broadcast", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Broadcast API is running on port ${PORT}`);
-});
+})
